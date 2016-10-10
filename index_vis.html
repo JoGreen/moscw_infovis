@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<!-- <html xmlns="http://www.w3.org/1999/xhtml"> -->
+<head>
+    <title>Progetto Info Vis</title>
+  <!--  <script src="http://d3js.org/d3.v4.min.js"></script>   -->
+   <!-- <script type="text/javascript" src="/Users/Giorgio/Downloads/d3js-mosca-master/d3.min.js"></script>  -->
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+     <style>
+        body{
+            background-color: black;
+        }
+        
+    </style>
+</head>
+<body>
+	<script>
+    var width = 1000, height = 550;
+var moscaPath = "M31,14 " +
+    "C31,16 32,17 30,19 C30,19 30,19 30,19 " +
+    "C31,20 32,22 32,24 C32,24 38,15 38,15 " +
+    "C37,15 39,10 39,10 C39,10 38,15 38,15 " +
+    "C39,15 33,25 33,25 C35,30 35,32 36,33 " +
+    "C35,33 35,33 35,33 C35,33 35,33 35,33 " +
+    "C35,33 36,34 36,35 C36,35 36,35 36,35 " +
+    "C36,35 36,35 36,35 C36,35 38,33 40,32 " +
+    "C41,30 42,29 42,29 C42,29 41,31 39,32 " +
+    "C38,34 37,35 37,35 C41,43 50,62 45,71 " +
+    "C42,76 29,55 28,58 C28,57 27,62 22,58 " +
+    "C20,53 14,75 6,73  C-2,70 8,45 12,35  " +
+    "C12,35 12,35 12,35 C12,35 12,35 12,35 " +
+    "C12,35 12,35 12,35 C12,35 12,35 12,35 " +
+    "C12,35 12,35 12,35 C12,35 9,34 7,32   " +
+    "C5,31 4,30 4,30    C4,30 6,31 7,32    " +
+    "C10,34 12,35 12,35 C13,34 13,33 13,32 " +
+    "C13,29 14,26 14,24 C14,24 14,24 14,24 " +
+    "C14,24 9,16 9,16   C9,16 6,10 6,10    " +
+    "C6,10 8,13 10,16   C12,20 15,23 15,23 " +
+    "C16,20 17,19 17,19 C17,19 15,16 16,14 " +
+    "C17,13 20,12 21,12 C21,11 21,11 22,10 " +
+    "C22,10 25,10 25,10 C25,11 26,12 27,12 " +
+    "C28,11 31,13 31,14 " +
+    "z";
+var cloudPath='M 25,60 a 20,20 1 0,0 0,40 h 50 a 20,20 1 0,0 0,-40 a 10,10 1 0,0 -15,-10 a 15,15 1 0,0 -35,10 z';
+
+var data = [0];
+var side = new Array(data.length);
+var visible = new Array(data.length);
+for(var i = 0; i<visible.length; i++){visible[i]= true;}
+var lastSide = new Array(data.length);
+var nextSide = new Array(data.length);
+
+var svgContainer = d3.select("body").append("svg")
+    .attr("width", width)
+    .attr("height", height)
+    .style("display", "block")
+    .style("margin", "0 auto");
+
+
+var box = svgContainer.append("rect")
+   // .attr("d", moscaPath) 
+    .attr("width", width)
+    .attr("height", height)
+    .style("stroke-width", 5)
+    .style("stroke", "darkgray")
+    .style("fill", "#87cefa");
+
+svgContainer.append("path")
+    .attr("d", cloudPath)
+    .attr("class","cloud")
+    .style("stroke-width", 1)
+    .style("stroke", "black")
+    .style("fill", "white")
+    .attr("x",width /4)
+    .attr("y", height/3)
+    .attr("scale","scale(1.2,1.2)")
+    .attr('transform', 'translate(  ' + (width /4) + ',' + (height /3)  +' ) scale(1.2,1.2) '); 
+
+svgContainer.append("path")
+    .attr("d", cloudPath)
+    .attr("class","cloud")
+    .style("stroke-width", 1)
+    .style("stroke", "black")
+    .style("fill", "white")
+    .attr("scale","scale(1.0,1.0)")
+    .attr("x",width -200)
+    .attr("y", height -200)
+    .attr('transform', 'translate(  ' + (width -200) + ',' + (height -200)  +' ) ');
+
+svgContainer.append("path")
+    .attr("d", cloudPath)
+    .attr("class","cloud")
+    .style("stroke-width", 1)
+    .style("stroke", "black")
+    .style("fill", "white")
+    .attr("scale","scale(1.0,1.0)")
+    .attr("x",width -100)
+    .attr("y", height/10)
+    .attr('transform', 'translate(  ' + (width -100) + ',' + (height/10)  +' )  ');
+
+function moveClouds(){
+        var clouds = d3.selectAll(".cloud");
+        clouds.transition()
+            .duration(function(){return 50000*Math.random()})
+            .attr("transform", function(){
+                return "translate("+(d3.select(this).attr("x")-width/4)+","+d3.select(this).attr("y") +") "+d3.select(this).attr("scale")
+            })
+            .transition()
+                .duration(function(){return 40000*Math.random()})
+                .attr("transform", function(){
+                return "translate("+(d3.select(this).attr("x"))+","+d3.select(this).attr("y") +") "+d3.select(this).attr("scale")
+            })
+            .each("end", moveClouds);
+    }
+
+var mouseover = function(){
+                d3.select(this).style("stroke", "red");
+                console.log("quasi preso !")};
+var mouseout = function(){
+                d3.select(this).style("stroke", "black");
+                console.log("sfuggito per un pelo !")};
+
+function getX(curr_moscow){
+    return curr_moscow.attr("transform").split(",")[0].split("(")[1];
+}
+
+function falldown(curr_moscow){
+
+    console.log(curr_moscow);
+   direction=179;
+    curr_moscow.transition()
+        .duration(6000)
+        .delay(1000)
+        .attr('transform',function(){console.log("ZZZZZZZZZZ");return 'translate( ' + getX(curr_moscow) + ', '+(height+150)+ '  ) rotate('+(direction+height)+')'})
+        .each('end',function(){
+            curr_moscow.style("fill","black"); // the moscow come back black
+            //d3.select()
+            updatePositions()
+            }
+        ); //se vuoi che la mosca rientri nel riquadro dopo essere morta.
+}
+
+function dead(){
+     var curr_moscow = d3.select(this);
+     curr_moscow.style("stroke", "black");
+     curr_moscow.style("fill", "red");
+     curr_moscow.transition()
+        .duration(1000)
+         .attr('transform', 'translate(  ' + (width/2 ) + ',' + (height/2 )  +' ) scale(0.9,0.9) rotate(360)')
+        .transition()
+             .duration(300)
+             .delay(0)
+             .attr('transform', function(){return 'translate(  ' + (width/2 ) + ',' + (height/2 )  +' ) scale(0.9,0.9) rotate(0)'})
+        .each("end",function(){
+            d3.select(this).transition()
+             .duration(300)
+             .delay(0)
+             .attr('transform', function(){return 'translate(  ' + (width/2 ) + ',' + (height/2 )  +' ) scale(0.8,0.8) rotate(180)'})
+             .each("end",function(){
+             d3.select(this).transition()
+             .duration(200)
+             .delay(0)
+             .attr('transform', function(){return 'translate(  ' + (width/2 ) + ',' + (height/2 )  +' ) scale(0.7,0.7) rotate(350)'})
+            .each("end",function(){
+                 d3.select(this).transition()
+             .duration(100)
+             .delay(0)
+             .attr('transform', function(){return 'translate(  ' + (width/2 ) + ',' + (height/2 )  +' ) scale(0.6,0.6) rotate(160)'})
+             .each("end",function(){
+                    d3.select(this).transition()
+             .duration(100)
+             .delay(0)
+             .attr('transform', function(){return 'translate(  ' + (width/2 ) + ',' + (height/2 )  +' ) scale(0.5,0.5) rotate(330)'})
+             .each("end",function(){
+                        d3.select(this).transition()
+             .duration(100)
+             .delay(0)
+             .attr('transform', function(){return 'translate(  ' + (width/2 ) + ',' + (height/2 )  +' ) scale(0.4,0.4) rotate(140)'})
+             .each("end",function(){
+                            d3.select(this).transition()
+             .duration(50)
+             .delay(0)
+             .attr('transform', function(){return 'translate(  ' + (width/2 ) + ',' + (height/2 )  +' ) scale(0.35,0.35)rotate(190)'})
+             .each("end", function(){
+             d3.select(this).transition()
+             .duration(100)
+             .delay(0)
+             .attr('transform', function(){return 'translate(  ' + (width/2 ) + ',' + (height/2 )  +' ) scale(0.3,0.3) rotate(0)'})
+                            .each("end",function(){
+                                d3.select(this).transition()
+             .duration(100)
+             .delay(0)
+             .attr('transform', function(){return 'translate(  ' + (width/2 ) + ',' + (height/2 )  +' ) scale(0.28,0.28) rotate(180)'})
+             .each("end",function(){
+                                    d3.select(this).transition()
+             .duration(80)
+             .delay(0)
+             .attr('transform', function(){return 'translate(  ' + (width/2 ) + ',' + (height/2 )  +' ) scale(0.27,0.27) rotate(350)'})
+                                    .each("end",function(){
+                                        d3.select(this).transition()
+             .duration(80)
+             .delay(0)
+             .attr('transform', function(){return 'translate(  ' + (width/2 ) + ',' + (height/2 )  +' ) scale(0.26,0.26) rotate(160)'})
+             .each("end",function(){
+                                            d3.select(this).transition()
+             .duration(80)
+             .delay(0)
+             .attr('transform', function(){return 'translate(  ' + (width/2 ) + ',' + (height/2 )  +' ) scale(0.25,0.25) rotate(330)'})
+             .each("end",function(){
+                                                d3.select(this).transition()
+                                                .duration(80)
+                                                .delay(0)
+                                                .attr('transform', function(){return 'translate(  ' + (width/2 ) + ',' + (height/2 )  +' ) scale(0.24,0.24) rotate(140)'})
+                                                .each("end",function(){
+                                                    d3.select(this).transition()
+             .duration(30)
+             .delay(0)
+             .attr('transform', function(){return 'translate(  ' + (width/2 ) + ',' + (height/2 )  +' ) scale(0.2,0.2)rotate(180)'})
+                                                    .each("end",falldown(d3.select(this)));
+     
+})})})})})})  })})})})})})})
+}
+
+
+var mosca = svgContainer.selectAll(".moscow")
+    .data(data)
+        .enter()
+        .append("path")
+            .attr("d", moscaPath)
+            .attr("class","moscow")
+            .attr("id",function(d){return "moscow_"+d;})
+            .attr("x",function(d){return Math.random()*width*parseInt(d) +7})
+            .attr("y",Math.random()*height +7)
+            .attr("data",function(d){return d})
+            .style("stroke-width", 1)
+            .style("stroke", "black")
+            .style("fill", "black")
+            .style("visibility","visible")
+            .attr('transform', 'translate(  ' + (width/2 ) + ',' + (height/2 )  +' ) rotate(20)')
+            .on("mouseover", mouseover)
+            .on("mouseout", mouseout)
+            .on("click",dead);
+
+
+/*svgContainer.on('mousemove',function(){
+   mosca.transition()
+       //.style('visibility', 'hidden')
+       .each('end', function(){
+           setTimeout(function(){
+               mosca
+                   .style('visibility', 'visible')
+                   .attr('transform', 'translate(  ' + (width /2) + ',' + (height +20)  +' ) rotate(20)');
+               side = 2;
+               update();
+           }, 2000);
+       })
+});*/
+
+function check_boards(d){
+    //var d=d3.select(this).attr("data");
+     switch (lastSide[d]){
+            case 0:nextSide[d]= 2;
+                break;
+            case 1:nextSide[d]= 3;
+                break;
+            case 2:nextSide[d]= 0;
+                break;
+            case 3:nextSide[d]= 1;
+                break;
+           // default:nextSide[d]= undefined;
+             //   break;
+        }
+}
+
+function update() {
+    var extra = 80;
+    var d=d3.select(this).attr("data");
+    //var d = c.attr("data");
+    check_boards(d);
+     if (nextSide[d] === undefined) {
+            do{
+                var newSide = Math.floor(4 * Math.random());
+            }while(side[d]===newSide);
+        } else{ 
+            newSide = nextSide[d];
+            //d3.select(this).style("visibility","hidden");
+        };
+     
+         switch (newSide){
+            case 0: //top
+                 d3.select(this).attr("x",Math.round((width - 10) * Math.random() ));
+                 d3.select(this).attr("y", -extra);
+                 d3.select(this).attr("angle",0);
+
+                console.log(0);
+                break;
+            case 1: //right
+                d3.select(this).attr("x", width + extra);
+                d3.select(this).attr("y",Math.round((height - 100) * Math.random() +50 ));
+                d3.select(this).attr("angle", 90);
+                console.log(1);
+                break;
+            case 2: //bottom
+                d3.select(this).attr("x", Math.round((width - 10) * Math.random() ));
+                d3.select(this).attr("y", height + extra );
+                d3.select(this).attr("angle", 180);
+                console.log(2);
+                break;
+            case 3: //left
+                d3.select(this).attr("x", -extra );
+                d3.select(this).attr("y", Math.round((height - 100) * Math.random() +50 ));
+                d3.select(this).attr("angle",270);
+                console.log(3);
+                break;
+
+            case 4: 
+                d3.select(this).attr("x", -7 );
+                d3.select(this).attr("y", Math.round((height - 10) * Math.random() + 50));
+                d3.select(this).attr("angle", 270);
+                console.log(4);
+                break;
+            case 5:
+                d3.select(this).attr("x", -7 );
+                d3.select(this).attr("y", Math.round((height - 10) * Math.random() + 50));
+                d3.select(this).attr("angle", 270);
+                console.log(5);
+                break;
+            case 6:
+                d3.select(this).attr("x", -7) ;
+                d3.select(this).attr("y", Math.round((height - 10) * Math.random() + 50));
+                d3.select(this).attr("angle", 270);
+                console.log(6);
+                break;
+            case 7:
+                d3.select(this).attr("x", -7) ;
+                d3.select(this).attr("y", Math.round((height - 10) * Math.random() + 50));
+                d3.select(this).attr("angle", 270);
+                console.log(7);
+                break;
+    } 
+    lastSide[d] = newSide
+    side[d] = newSide;
+    console.log("mi dirigo verso: "+lastSide[d]);
+}
+
+function coordinates(){
+    var pi = 0;
+    var dat = d3.select(this).attr("data");
+    var angle = parseInt(d3.select(this).attr("angle"));
+    s = side[dat];
+    if(visible[dat] === false){  
+        pi = (s === 0 || s === 1) ? 180 : -180;
+    }
+    //console.log("------pi = "+pi);
+    return 'translate( ' + d3.select(this).attr("x") + ', ' + d3.select(this).attr("y") + '  ) rotate('+(angle+pi)+')';
+        
+    
+}
+
+function visibility(curr){
+        if(curr.style("visibility") === "hidden"){
+           // console.log("function visibility"+curr.style("visibility"));
+            curr.style("visibility","visible");
+            nextSide[curr.attr("data")] = undefined;
+            lastSide[curr.attr("data")] = undefined;
+            //console.log(nextSide[curr.attr("data")]);
+        }
+
+    }
+function updatePositions(){
+        //var mosca_curr = d3.select(this);
+        mosca.each(update);
+        mosca.transition()
+            .style("visibility",function(){
+                var dat = d3.select(this).attr("data");
+                if (nextSide[dat] === undefined){visible[dat] = true;return "visible";
+                } 
+                else{
+                    visible[dat] = false;
+                    return "hidden";
+                }
+            }) 
+            .duration(function(){
+                var dat = d3.select(this).attr("data")
+                if (nextSide[dat] === undefined){console.log("visible");return 6000;}
+                else{console.log("hidden!!!");return 200;} })
+            .delay(1000)
+            .ease('quad')
+            .attr('transform', coordinates)
+            .each('end', function(){ 
+                visibility(d3.select(this));
+                updatePositions(); }); 
+    }
+ 
+
+updatePositions();
+moveClouds();
+
+</script>
+</body>
